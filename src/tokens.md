@@ -320,9 +320,9 @@ b"\\x52"; br"\x52";                  // \x52
 > **<sup>Lexer</sup>**\
 > C_STRING_LITERAL :\
 > &nbsp;&nbsp; `c"` (\
-> &nbsp;&nbsp; &nbsp;&nbsp; ~\[`"` `\` _IsolatedCR_]\
-> &nbsp;&nbsp; &nbsp;&nbsp; | BYTE_ESCAPE\
-> &nbsp;&nbsp; &nbsp;&nbsp; | UNICODE_ESCAPE\
+> &nbsp;&nbsp; &nbsp;&nbsp; ~\[`"` `\` _IsolatedCR_ _NUL_]\
+> &nbsp;&nbsp; &nbsp;&nbsp; | BYTE_ESCAPE _except `\0` or `\x00`_\
+> &nbsp;&nbsp; &nbsp;&nbsp; | UNICODE_ESCAPE _except `\u{0}`, `\u{00}`, …, `\u{000000}`_\
 > &nbsp;&nbsp; &nbsp;&nbsp; | STRING_CONTINUE\
 > &nbsp;&nbsp; )<sup>\*</sup> `"` SUFFIX<sup>?</sup>
 
@@ -330,8 +330,7 @@ A _C string literal_ is a sequence of Unicode characters and _escapes_,
 preceded by the characters `U+0063` (`c`) and `U+0022` (double-quote), and
 followed by the character `U+0022`. If the character `U+0022` is present within
 the literal, it must be _escaped_ by a preceding `U+005C` (`\`) character.
-Alternatively, a C string literal can be a _raw C string literal_, defined
-below. The type of a C string literal is [`&core::ffi::CStr`][CStr].
+Alternatively, a C string literal can be a _raw C string literal_, defined below.
 
 [CStr]: ../core/ffi/struct.CStr.html
 
@@ -355,10 +354,6 @@ starts with a `U+005C` (`\`) and continues with one of the following forms:
 * The _backslash escape_ is the character `U+005C` (`\`) which must be
   escaped in order to denote its ASCII encoding `0x5C`.
 
-The escape sequences `\0`, `\x00`, and `\u{0000}` are permitted within the token
-but will be rejected as invalid, as C strings may not contain byte `0x00` except
-as the implicit terminator.
-
 A C string represents bytes with no defined encoding, but a C string literal
 may contain Unicode characters above `U+007F`. Such characters will be replaced
 with the bytes of that character's UTF-8 representation.
@@ -381,16 +376,16 @@ c"\xC3\xA6";
 > &nbsp;&nbsp; `cr` RAW_C_STRING_CONTENT SUFFIX<sup>?</sup>
 >
 > RAW_C_STRING_CONTENT :\
-> &nbsp;&nbsp; &nbsp;&nbsp; `"` ( ~ _IsolatedCR_ )<sup>* (non-greedy)</sup> `"`\
+> &nbsp;&nbsp; &nbsp;&nbsp; `"` ( ~ _IsolatedCR_ _NUL_ )<sup>* (non-greedy)</sup> `"`\
 > &nbsp;&nbsp; | `#` RAW_C_STRING_CONTENT `#`
 
 Raw C string literals do not process any escapes. They start with the
 character `U+0063` (`c`), followed by `U+0072` (`r`), followed by fewer than 256
 of the character `U+0023` (`#`), and a `U+0022` (double-quote) character. The
-_raw C string body_ can contain any sequence of Unicode characters and is
-terminated only by another `U+0022` (double-quote) character, followed by the
-same number of `U+0023` (`#`) characters that preceded the opening `U+0022`
-(double-quote) character.
+_raw C string body_ can contain any sequence of Unicode characters (other than
+`U+0000`) and is terminated only by another `U+0022` (double-quote) character,
+followed by the same number of `U+0023` (`#`) characters that preceded the
+opening `U+0022` (double-quote) character.
 
 All characters contained in the raw C string body represent themselves in UTF-8
 encoding. The characters `U+0022` (double-quote) (except when followed by at
