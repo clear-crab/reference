@@ -15,6 +15,7 @@
 A *block expression*, or *block*, is a control flow expression and anonymous namespace scope for items and variable declarations.
 As a control flow expression, a block sequentially executes its component non-item declaration statements and then its final optional expression.
 As an anonymous namespace scope, item declarations are only in scope inside the block itself and variables declared by `let` statements are in scope from the next statement until the end of the block.
+See the [scopes] chapter for more details.
 
 The syntax for a block is `{`, then any [inner attributes], then any number of [statements], then an optional expression, called the final operand, and finally a `}`.
 
@@ -123,13 +124,13 @@ loop {
 > _ConstBlockExpression_ :\
 > &nbsp;&nbsp; `const` _BlockExpression_
 
-A *const block* is a variant of a block expression which evaluates at compile-time instead of at runtime.
+A *const block* is a variant of a block expression whose body evaluates at compile-time instead of at runtime.
 
 Const blocks allows you to define a constant value without having to define new [constant items], and thus they are also sometimes referred as *inline consts*.
 It also supports type inference so there is no need to specify the type, unlike [constant items].
 
 Const blocks have the ability to reference generic parameters in scope, unlike [free][free item] constant items.
-They are desugared to associated constant items with generic parameters in scope.
+They are desugared to constant items with generic parameters in scope (similar to associated constants, but without a trait or type they are associated with).
 For example, this code:
 
 ```rust
@@ -152,8 +153,26 @@ fn foo<T>() -> usize {
 }
 ```
 
-This also means that const blocks are treated similarly to associated constants.
-For example, they are not guaranteed to be evaluated when the enclosing function is unused.
+If the const block expression is executed at runtime, then the constant is guaranteed to be evaluated, even if its return value is ignored:
+
+```rust
+fn foo<T>() -> usize {
+    // If this code ever gets executed, then the assertion has definitely
+    // been evaluated at compile-time.
+    const { assert!(std::mem::size_of::<T>() > 0); }
+    // Here we can have unsafe code relying on the type being non-zero-sized.
+    /* ... */
+    42
+}
+```
+
+If the const block expression is not executed at runtime, it may or may not be evaluated:
+```rust,compile_fail
+if false {
+    // The panic may or may not occur when the program is built.
+    const { panic!(); }
+}
+```
 
 ## `unsafe` blocks
 
@@ -225,6 +244,7 @@ fn is_unix_platform() -> bool {
 [inner attributes]: ../attributes.md
 [method]: ../items/associated-items.md#methods
 [mutable reference]: ../types/pointer.md#mutables-references-
+[scopes]: ../names/scopes.md
 [shared references]: ../types/pointer.md#shared-references-
 [statement]: ../statements.md
 [statements]: ../statements.md
