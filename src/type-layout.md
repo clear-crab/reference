@@ -575,9 +575,9 @@ was wrapped in a newtype `struct` with the same `align` modifier.
 > println!("{}", {e.f2});
 > // Or if you need a pointer, use the unaligned methods for reading and writing
 > // instead of dereferencing the pointer directly.
-> let ptr: *const u16 = std::ptr::addr_of!(e.f2);
+> let ptr: *const u16 = &raw const e.f2;
 > let value = unsafe { ptr.read_unaligned() };
-> let mut_ptr: *mut u16 = std::ptr::addr_of_mut!(e.f2);
+> let mut_ptr: *mut u16 = &raw mut e.f2;
 > unsafe { mut_ptr.write_unaligned(3) }
 > ```
 
@@ -585,12 +585,11 @@ was wrapped in a newtype `struct` with the same `align` modifier.
 
 The `transparent` representation can only be used on a [`struct`][structs]
 or an [`enum`][enumerations] with a single variant that has:
-
-- a single field with non-zero size, and
-- any number of fields with size 0 and alignment 1 (e.g. [`PhantomData<T>`]).
+- any number of fields with size 0 and alignment 1 (e.g. [`PhantomData<T>`]), and
+- at most one other field.
 
 Structs and enums with this representation have the same layout and ABI
-as the single non-zero sized field.
+as the only non-size 0 non-alignment 1 field, if present, or unit otherwise.
 
 This is different than the `C` representation because
 a struct with the `C` representation will always have the ABI of a `C` `struct`
@@ -600,12 +599,12 @@ primitive field will have the ABI of the primitive field.
 Because this representation delegates type layout to another type, it cannot be
 used with any other representation.
 
-[`align_of_val`]: ../std/mem/fn.align_of_val.html
-[`size_of_val`]: ../std/mem/fn.size_of_val.html
-[`align_of`]: ../std/mem/fn.align_of.html
-[`size_of`]: ../std/mem/fn.size_of.html
-[`Sized`]: ../std/marker/trait.Sized.html
-[`Copy`]: ../std/marker/trait.Copy.html
+[`align_of_val`]: std::mem::align_of_val
+[`size_of_val`]: std::mem::size_of_val
+[`align_of`]: std::mem::align_of
+[`size_of`]: std::mem::size_of
+[`Sized`]: std::marker::Sized
+[`Copy`]: std::marker::Copy
 [dynamically sized types]: dynamically-sized-types.md
 [field-less enums]: items/enumerations.md#field-less-enum
 [enumerations]: items/enumerations.md
@@ -618,4 +617,4 @@ used with any other representation.
 [primitive representations]: #primitive-representations
 [structs]: items/structs.md
 [`transparent`]: #the-transparent-representation
-[`Layout`]: ../std/alloc/struct.Layout.html
+[`Layout`]: std::alloc::Layout
