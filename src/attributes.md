@@ -268,6 +268,7 @@ The following is an index of all built-in attributes.
   - [`must_use`] --- Generates a lint for unused values.
   - [`diagnostic::on_unimplemented`] --- Hints the compiler to emit a certain error
     message if a trait is not implemented.
+  - [`diagnostic::do_not_recommend`] --- Hints the compiler to not show a certain trait impl in error messages.
 
 - ABI, linking, symbols, and FFI
   - [`link`] --- Specifies a native library to link with an `extern` block.
@@ -329,6 +330,9 @@ The following is an index of all built-in attributes.
   - [`debugger_visualizer`] --- Embeds a file that specifies debugger output for a type.
   - [`collapse_debuginfo`] --- Controls how macro invocations are encoded in debuginfo.
 
+- Coverage Instrumentation
+  - [`coverage`] --- Controls how code coverage is instrumented.
+
 [Doc comments]: comments.md#doc-comments
 [ECMA-334]: https://www.ecma-international.org/publications-and-standards/standards/ecma-334/
 [ECMA-335]: https://www.ecma-international.org/publications-and-standards/standards/ecma-335/
@@ -347,6 +351,7 @@ The following is an index of all built-in attributes.
 [`cfg`]: conditional-compilation.md#the-cfg-attribute
 [`cold`]: attributes/codegen.md#the-cold-attribute
 [`collapse_debuginfo`]: attributes/debugger.md#the-collapse_debuginfo-attribute
+[`coverage`]: attributes/coverage-instrumentation.md#the-coverage-attribute
 [`crate_name`]: crates-and-source-files.md#the-crate_name-attribute
 [`crate_type`]: linkage.md
 [`debugger_visualizer`]: attributes/debugger.md#the-debugger_visualizer-attribute
@@ -410,3 +415,4 @@ The following is an index of all built-in attributes.
 [function pointer]: types/function-pointer.md
 [variadic functions]: items/external-blocks.html#variadic-functions
 [`diagnostic::on_unimplemented`]: attributes/diagnostics.md#the-diagnosticon_unimplemented-attribute
+[`diagnostic::do_not_recommend`]: attributes/diagnostics.md#the-diagnosticdo_not_recommend-attribute
