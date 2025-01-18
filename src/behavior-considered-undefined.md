@@ -1,6 +1,5 @@
-## Behavior considered undefined
-
 r[undefined]
+## Behavior considered undefined
 
 r[undefined.general]
 Rust code is incorrect if it exhibits any of the behaviors in the following
@@ -103,9 +102,9 @@ r[undefined.const-transmute-ptr2int]
 > vice versa, undefined behavior in Rust can cause adverse affects on code
 > executed by any FFI calls to other languages.
 
+r[undefined.pointed-to]
 ### Pointed-to bytes
 
-r[undefined.pointed-to]
 The span of bytes a pointer or reference "points to" is determined by the pointer value and the size of the pointee type (using `size_of_val`).
 
 ### Places based on misaligned pointers
@@ -215,7 +214,7 @@ r[undefined.validity.union]
   Further details are [still being debated](https://github.com/rust-lang/unsafe-code-guidelines/issues/438).
 
 r[undefined.validity.reference-box]
-* A reference or [`Box<T>`] must be aligned, it cannot be [dangling], and it must point to a valid value
+* A reference or [`Box<T>`] must be aligned and non-null, it cannot be [dangling], and it must point to a valid value
   (in case of dynamically sized types, using the actual dynamic type of the
   pointee as determined by the metadata).
   Note that the last point (about pointing to a valid value) remains a subject of some debate.
