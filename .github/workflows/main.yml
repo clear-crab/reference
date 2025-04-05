@@ -4,7 +4,7 @@ on:
   merge_group:
 
 env:
-  MDBOOK_VERSION: 0.4.43
+  MDBOOK_VERSION: 0.4.48
 
 jobs:
   code-tests:
@@ -102,6 +102,9 @@ jobs:
       run: cargo test
     - name: Rustfmt check
       working-directory: ./mdbook-spec
+      run: cargo fmt --check
+    - name: Xtask rustfmt check
+      working-directory: ./xtask
       run: cargo fmt --check
 
   preview:
