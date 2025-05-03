@@ -171,7 +171,6 @@ As with format strings, positional arguments must appear before named arguments 
 
 ```rust,compile_fail
 # #[cfg(target_arch = "x86_64")] {
-let x = 5;
 // Named operands need to come after positional ones
 unsafe { core::arch::asm!("/* {x} {} */", x = const 5, in(reg) 5); }
 // ERROR: positional arguments cannot follow named arguments or explicit register arguments
@@ -181,7 +180,6 @@ unsafe { core::arch::asm!("/* {x} {} */", x = const 5, in(reg) 5); }
 
 ```rust,compile_fail
 # #[cfg(target_arch = "x86_64")] {
-let x = 5;
 // We also can't put explicit registers before positional operands
 unsafe { core::arch::asm!("/* {} */", in("eax") 0, in(reg) 5); }
 // ERROR: positional arguments cannot follow named arguments or explicit register arguments
@@ -194,7 +192,6 @@ Explicit register operands cannot be used by placeholders in the template string
 
 ```rust,compile_fail
 # #[cfg(target_arch = "x86_64")] {
-let x = 5;
 // Explicit register operands don't get substituted, use `eax` explicitly in the string
 unsafe { core::arch::asm!("/* {} */", in("eax") 5); }
 // ERROR: invalid reference to argument at index 0
@@ -207,7 +204,6 @@ All other named and positional operands must appear at least once in the templat
 
 ```rust,compile_fail
 # #[cfg(target_arch = "x86_64")] {
-let x = 5;
 // We have to name all of the operands in the format string
 unsafe { core::arch::asm!("", in(reg) 5, x = const 5); }
 // ERROR: multiple unused asm arguments
@@ -371,6 +367,7 @@ assert_eq!(y, [3, 2, 0, 1]);
 r[asm.operand-type.supported-operands.label]
 * `label <block>`
   - The address of the block is substituted into the asm template string. The assembly code may jump to the substituted address.
+  - For targets that distinguish between direct jumps and indirect jumps (e.g. x86-64 with `cf-protection` enabled), the assembly code must not jump to the substituted address indirectly.
   - After execution of the block, the `asm!` expression returns.
   - The type of the block must be unit or `!` (never).
   - The block starts a new safety context; unsafe operations within the `label` block must be wrapped in an inner `unsafe` block, even though the entire `asm!` expression is already wrapped in `unsafe`.
@@ -406,7 +403,6 @@ Because `global_asm!` exists outside a function, it can only use `sym` and `cons
 
 ```rust,compile_fail
 # fn main() {}
-let x = 5;
 // register operands aren't allowed, since we aren't in a function
 # #[cfg(target_arch = "x86_64")]
 core::arch::global_asm!("", in(reg) 5);
@@ -468,7 +464,6 @@ Additionally, it is also a compile-time error to use overlapping registers (e.g.
 
 ```rust,compile_fail
 # #[cfg(target_arch = "x86_64")] {
-let x = 5;
 // al overlaps with ax, so we can't name both of them.
 unsafe { core::arch::asm!("", in("ax") 5, in("al") 4i8); }
 // ERROR: register `al` conflicts with register `ax`
@@ -1210,9 +1205,6 @@ unsafe { core::arch::asm!("", options(pure)); }
 r[asm.options.checks.noreturn]
 - It is a compile-time error to specify `noreturn` on an asm block with outputs and without labels.
 
-r[asm.options.checks.label-with-outputs]
-- It is a compile-time error to have any `label` blocks in an asm block with outputs.
-
 ```rust,compile_fail
 # #[cfg(target_arch = "x86_64")] {
 let z: i32;
@@ -1222,6 +1214,9 @@ unsafe { core::arch::asm!("mov {:e}, 1", out(reg) z, options(noreturn)); }
 # }
 # #[cfg(not(target_arch = "x86_64"))] core::compile_error!("Test not supported on this arch");
 ```
+
+r[asm.options.checks.label-with-outputs]
+- It is a compile-time error to have any `label` blocks in an asm block with outputs.
 
 r[asm.options.naked_asm-restriction]
 `naked_asm!` only supports the `att_syntax` and `raw` options. The remaining options are not meaningful because the inline assembly defines the whole function body.
