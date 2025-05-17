@@ -139,23 +139,11 @@ r[patterns.literal]
 
 r[patterns.literal.syntax]
 ```grammar,patterns
-LiteralPattern ->
-      `true` | `false`
-    | CHAR_LITERAL
-    | BYTE_LITERAL
-    | STRING_LITERAL
-    | RAW_STRING_LITERAL
-    | BYTE_STRING_LITERAL
-    | RAW_BYTE_STRING_LITERAL
-    | C_STRING_LITERAL
-    | RAW_C_STRING_LITERAL
-    | `-`? INTEGER_LITERAL
-    | `-`? FLOAT_LITERAL
+LiteralPattern -> `-`? LiteralExpression
 ```
 
 r[patterns.literal.intro]
-_Literal patterns_ match exactly the same value as what is created by the literal.
-Since negative numbers are not [literals], literal patterns also accept an optional minus sign before the literal, which acts like the negation operator.
+_Literal patterns_ match exactly the same value as what is created by the literal. Since negative numbers are not [literals], literals in patterns may be prefixed by an optional minus sign, which acts like the negation operator.
 
 > [!WARNING]
 > C string and raw C string literals are accepted in literal patterns, but `&CStr` doesn't implement structural equality (`#[derive(Eq, PartialEq)]`) and therefore any such `match` on a `&CStr` will be rejected with a type error.
@@ -181,7 +169,7 @@ r[patterns.ident]
 
 r[patterns.ident.syntax]
 ```grammar,patterns
-IdentifierPattern -> `ref`? `mut`? IDENTIFIER (`@` PatternNoTopAlt ) ?
+IdentifierPattern -> `ref`? `mut`? IDENTIFIER ( `@` PatternNoTopAlt )?
 ```
 
 r[patterns.ident.intro]
@@ -497,10 +485,7 @@ ObsoleteRangePattern ->
     RangePatternBound `...` RangePatternBound
 
 RangePatternBound ->
-      CHAR_LITERAL
-    | BYTE_LITERAL
-    | `-`? INTEGER_LITERAL
-    | `-`? FLOAT_LITERAL
+      LiteralPattern
     | PathExpression
 ```
 
@@ -553,7 +538,11 @@ A bound is written as one of:
 
 * A character, byte, integer, or float literal.
 * A `-` followed by an integer or float literal.
-* A [path]
+* A [path].
+
+> [!NOTE]
+>
+> We syntactically accept more than this for a *[RangePatternBound]*. We later reject the other things semantically.
 
 r[patterns.range.constraint-bound-path]
 If a bound is written as a path, after macro resolution, the path must resolve to a constant item of the type `char`, an integer type, or a float type.
@@ -704,7 +693,7 @@ r[patterns.struct.syntax]
 ```grammar,patterns
 StructPattern ->
     PathInExpression `{`
-        StructPatternElements ?
+        StructPatternElements?
     `}`
 
 StructPatternElements ->
