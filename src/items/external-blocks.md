@@ -103,9 +103,8 @@ standard C ABI on the specific platform. Other ABIs may be specified using an
 `abi` string, as shown here:
 
 ```rust
-# #[cfg(any(windows, target_arch = "x86"))]
 // Interface to the Windows API
-unsafe extern "stdcall" { }
+unsafe extern "system" { }
 ```
 
 r[items.extern.abi.standard]
@@ -150,7 +149,7 @@ r[items.extern.abi.fastcall]
   `__fastcall` and GCC and clang's `__attribute__((fastcall))`
 
 r[items.extern.abi.thiscall]
-* `unsafe extern "thiscall"` -- The default for C++ member functions on MSVC -- corresponds to MSVC's
+* `unsafe extern "thiscall"` -- The default for C++ member functions on x86\_32 MSVC -- corresponds to MSVC's
   `__thiscall` and GCC and clang's `__attribute__((thiscall))`
 
 r[items.extern.abi.efiapi]

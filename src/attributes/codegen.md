@@ -217,6 +217,7 @@ Feature     | Implicitly Enables | Description
 `fma`       | `avx`    | [FMA3] --- Three-operand fused multiply-add
 `fxsr`      |          | [`fxsave`] and [`fxrstor`] --- Save and restore x87 FPU, MMX Technology, and SSE State
 `gfni`      | `sse2`   | [GFNI] --- Galois Field New Instructions
+`kl`        | `sse2`   | [KEYLOCKER] --- Intel Key Locker Instructions
 `lzcnt`     |          | [`lzcnt`] --- Leading zeros count
 `movbe`     |          | [`movbe`] --- Move data after swapping bytes
 `pclmulqdq` | `sse2`   | [`pclmulqdq`] --- Packed carry-less multiplication quadword
@@ -224,6 +225,9 @@ Feature     | Implicitly Enables | Description
 `rdrand`    |          | [`rdrand`] --- Read random number
 `rdseed`    |          | [`rdseed`] --- Read random seed
 `sha`       | `sse2`   | [SHA] --- Secure Hash Algorithm
+`sha512`    | `avx2`   | [SHA512] --- Secure Hash Algorithm with 512-bit digest
+`sm3`       | `avx`    | [SM3] --- ShangMi 3 Hash Algorithm
+`sm4`       | `avx2`   | [SM4] --- ShangMi 4 Cipher Algorithm
 `sse`       |          | [SSE] --- Streaming <abbr title="Single Instruction Multiple Data">SIMD</abbr> Extensions
 `sse2`      | `sse`    | [SSE2] --- Streaming SIMD Extensions 2
 `sse3`      | `sse2`   | [SSE3] --- Streaming SIMD Extensions 3
@@ -232,6 +236,7 @@ Feature     | Implicitly Enables | Description
 `ssse3`     | `sse3`   | [SSSE3] --- Supplemental Streaming SIMD Extensions 3
 `vaes`      | `avx2`, `aes`     | [VAES] --- Vector AES Instructions
 `vpclmulqdq`| `avx`, `pclmulqdq`| [VPCLMULQDQ] --- Vector Carry-less multiplication of Quadwords
+`widekl`    | `kl`     | [KEYLOCKER_WIDE] --- Intel Wide Keylocker Instructions
 `xsave`     |          | [`xsave`] --- Save processor extended states
 `xsavec`    |          | [`xsavec`] --- Save processor extended states with compaction
 `xsaveopt`  |          | [`xsaveopt`] --- Save processor extended states optimized
@@ -270,6 +275,8 @@ Feature     | Implicitly Enables | Description
 [`fxsave`]: https://www.felixcloutier.com/x86/fxsave
 [`fxrstor`]: https://www.felixcloutier.com/x86/fxrstor
 [GFNI]: https://en.wikipedia.org/wiki/AVX-512#GFNI
+[KEYLOCKER]: https://en.wikipedia.org/wiki/List_of_x86_cryptographic_instructions#Intel_Key_Locker_instructions
+[KEYLOCKER_WIDE]: https://en.wikipedia.org/wiki/List_of_x86_cryptographic_instructions#Intel_Key_Locker_instructions
 [`lzcnt`]: https://www.felixcloutier.com/x86/lzcnt
 [`movbe`]: https://www.felixcloutier.com/x86/movbe
 [`pclmulqdq`]: https://www.felixcloutier.com/x86/pclmulqdq
@@ -277,6 +284,9 @@ Feature     | Implicitly Enables | Description
 [`rdrand`]: https://en.wikipedia.org/wiki/RdRand
 [`rdseed`]: https://en.wikipedia.org/wiki/RdRand
 [SHA]: https://en.wikipedia.org/wiki/Intel_SHA_extensions
+[SHA512]: https://en.wikipedia.org/wiki/Intel_SHA_extensions
+[SM3]: https://en.wikipedia.org/wiki/List_of_x86_cryptographic_instructions#Intel_SHA_and_SM3_instructions
+[SM4]: https://en.wikipedia.org/wiki/List_of_x86_cryptographic_instructions#Intel_SHA_and_SM3_instructions
 [SSE]: https://en.wikipedia.org/wiki/Streaming_SIMD_Extensions
 [SSE2]: https://en.wikipedia.org/wiki/SSE2
 [SSE3]: https://en.wikipedia.org/wiki/SSE3
