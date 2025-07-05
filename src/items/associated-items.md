@@ -24,7 +24,7 @@ Specifically, there are [associated functions] (including methods), [associated 
 [associated constants]: #associated-constants
 
 r[items.associated.related]
-Associated items are useful when the associated item logically is related to the
+Associated items are useful when the associated item is logically related to the
 associating item. For example, the `is_some` method on `Option` is intrinsically
 related to Options, so should be associated.
 
@@ -59,8 +59,8 @@ r[items.associated.fn.def]
 An *associated function definition* defines a function associated with another
 type. It is written the same as a [function item].
 
-An example of a common associated function is a `new` function that returns
-a value of the type the associated function is associated with.
+> [!NOTE]
+> A common example is an associated function named `new` that returns a value of the type with which it is associated.
 
 ```rust
 struct Struct {
