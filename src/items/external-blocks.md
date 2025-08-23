@@ -28,8 +28,8 @@ r[items.extern.allowed-kinds]
 Two kinds of item _declarations_ are allowed in external blocks: [functions] and
 [statics].
 
-r[items.extern.fn-safety]
-Calling functions or accessing statics that are declared in external blocks is only allowed in an `unsafe` context.
+r[items.extern.safety]
+Calling unsafe functions or accessing unsafe statics that are declared in external blocks is only allowed in an [`unsafe` context].
 
 r[items.extern.namespace]
 The external block defines its functions and statics in the [value namespace] of the module or block where it is located.
@@ -391,6 +391,7 @@ r[items.extern.attributes.link.import_name_type.platform-specific]
 The `import_name_type` key is only supported on x86 Windows. Using it when
 targeting other platforms will result in a compiler error.
 
+<!-- template:attributes -->
 r[items.extern.attributes.link_name]
 ### The `link_name` attribute
 
@@ -412,13 +413,13 @@ r[items.extern.attributes.link_name.allowed-positions]
 The `link_name` attribute may only be applied to a function or static item in an `extern` block.
 
 > [!NOTE]
-> `rustc` currently accepts and ignores the attribute in other positions but lints against it. This may become a hard error in the future.
+> `rustc` ignores use in other positions but lints against it. This may become an error in the future.
 
 r[items.extern.attributes.link_name.duplicates]
-Only the last instance of `link_name` on an item is used to determine the symbol name.
+Only the last use of `link_name` on an item has effect.
 
 > [!NOTE]
-> `rustc` lints against duplicate use of this attribute on uses preceding the last. This may become a hard error in the future.
+> `rustc` lints against any use preceding the last. This may become an error in the future.
 
 r[items.extern.attributes.link_name.link_ordinal]
 The `link_name` attribute may not be used with the [`link_ordinal`] attribute.
@@ -464,6 +465,7 @@ restrictions as [regular function parameters].
 [WebAssembly module]: https://webassembly.github.io/spec/core/syntax/modules.html
 [`bundle` documentation for rustc]: ../../rustc/command-line-arguments.html#linking-modifiers-bundle
 [`dylib` versus `raw-dylib`]: #dylib-versus-raw-dylib
+[`unsafe` context]: ../unsafe-keyword.md
 [`verbatim` documentation for rustc]: ../../rustc/command-line-arguments.html#linking-modifiers-verbatim
 [`whole-archive` documentation for rustc]: ../../rustc/command-line-arguments.html#linking-modifiers-whole-archive
 [attributes]: ../attributes.md
