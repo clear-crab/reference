@@ -408,19 +408,68 @@ r[destructors.scope.lifetime-extension.patterns]
 #### Extending based on patterns
 
 r[destructors.scope.lifetime-extension.patterns.extending]
-An *extending pattern* is either
+An *extending pattern* is either:
 
 * An [identifier pattern] that binds by reference or mutable reference.
-* A [struct][struct pattern], [tuple][tuple pattern], [tuple struct][tuple
-  struct pattern], or [slice][slice pattern] pattern where at least one of the
-  direct subpatterns is an extending pattern.
 
-So `ref x`, `V(ref x)` and `[ref x, y]` are all extending patterns, but `x`,
-`&ref x` and `&(ref x,)` are not.
+  ```rust
+  # fn temp() {}
+  let ref x = temp(); // Binds by reference.
+  # x;
+  let ref mut x = temp(); // Binds by mutable reference.
+  # x;
+  ```
+
+* A [struct][struct pattern], [tuple][tuple pattern], [tuple struct][tuple struct pattern], [slice][slice pattern], or [or-pattern][or-patterns] where at least one of the direct subpatterns is an extending pattern.
+
+  ```rust
+  # use core::sync::atomic::{AtomicU64, Ordering::Relaxed};
+  # static X: AtomicU64 = AtomicU64::new(0);
+  struct W<T>(T);
+  # impl<T> Drop for W<T> { fn drop(&mut self) { X.fetch_add(1, Relaxed); } }
+  let W { 0: ref x } = W(()); // Struct pattern.
+  # x;
+  let W(ref x) = W(()); // Tuple struct pattern.
+  # x;
+  let (W(ref x),) = (W(()),); // Tuple pattern.
+  # x;
+  let [W(ref x), ..] = [W(())]; // Slice pattern.
+  # x;
+  let (Ok(W(ref x)) | Err(&ref x)) = Ok(W(())); // Or pattern.
+  # x;
+  //
+  // All of the temporaries above are still live here.
+  # assert_eq!(0, X.load(Relaxed));
+  ```
+
+So `ref x`, `V(ref x)` and `[ref x, y]` are all extending patterns, but `x`, `&ref x` and `&(ref x,)` are not.
 
 r[destructors.scope.lifetime-extension.patterns.let]
 If the pattern in a `let` statement is an extending pattern then the temporary
 scope of the initializer expression is extended.
+
+```rust
+# fn temp() {}
+// This is an extending pattern, so the temporary scope is extended.
+let ref x = *&temp(); // OK
+# x;
+```
+
+```rust,compile_fail,E0716
+# fn temp() {}
+// This is neither an extending pattern nor an extending expression,
+// so the temporary is dropped at the semicolon.
+let &ref x = *&&temp(); // ERROR
+# x;
+```
+
+```rust
+# fn temp() {}
+// This is not an extending pattern but it is an extending expression,
+// so the temporary lives beyond the `let` statement.
+let &ref x = &*&temp(); // OK
+# x;
+```
 
 r[destructors.scope.lifetime-extension.exprs]
 #### Extending based on expressions
@@ -434,7 +483,9 @@ expression which is one of the following:
   expression], [braced struct][struct expression], or [tuple][tuple expression]
   expression.
 * The arguments to an extending [tuple struct] or [tuple variant] constructor expression.
-* The final expression of any extending [block expression].
+* The final expression of an extending [block expression] except for an [async block expression].
+* The final expression of an extending [`if`] expression's consequent, `else if`, or `else` block.
+* An arm expression of an extending [`match`] expression.
 
 So the borrow expressions in `&mut 0`, `(&1, &mut 2)`, and `Some(&mut 3)`
 are all extending expressions. The borrows in `&0 + &1` and `f(&mut 0)` are not.
@@ -442,36 +493,97 @@ are all extending expressions. The borrows in `&0 + &1` and `f(&mut 0)` are not.
 The operand of any extending borrow expression has its temporary scope
 extended.
 
+> [!NOTE]
+> `rustc` does not treat [array repeat operands] of extending [array] expressions as extending expressions. Whether it should is an open question.
+>
+> For details, see [Rust issue #146092](https://github.com/rust-lang/rust/issues/146092).
+
 #### Examples
 
 Here are some examples where expressions have extended temporary scopes:
 
-```rust
-# fn temp() {}
-# trait Use { fn use_temp(&self) -> &Self { self } }
-# impl Use for () {}
-// The temporary that stores the result of `temp()` lives in the same scope
-// as x in these cases.
-let x = &temp();
-let x = &temp() as &dyn Send;
-let x = (&*&temp(),);
-let x = { [Some(&temp()) ] };
-let ref x = temp();
-let ref x = *&temp();
+```rust,edition2024
+# use core::sync::atomic::{AtomicU64, Ordering::Relaxed};
+# static X: AtomicU64 = AtomicU64::new(0);
+# struct S;
+# impl Drop for S { fn drop(&mut self) { X.fetch_add(1, Relaxed); } }
+# const fn temp() -> S { S }
+let x = &temp(); // Operand of borrow.
 # x;
+let x = &raw const *&temp(); // Operand of raw borrow.
+# assert_eq!(X.load(Relaxed), 0);
+let x = &temp() as &dyn Send; // Operand of cast.
+# x;
+let x = (&*&temp(),); // Operand of tuple constructor.
+# x;
+let x = { [Some(&temp())] }; // Final expr of block.
+# x;
+let x = const { &temp() }; // Final expr of `const` block.
+# x;
+let x = unsafe { &temp() }; // Final expr of `unsafe` block.
+# x;
+let x = if true { &temp() } else { &temp() };
+//              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//           Final exprs of `if`/`else` blocks.
+# x;
+let x = match () { _ => &temp() }; // `match` arm expression.
+# x;
+//
+// All of the temporaries above are still live here.
+# assert_eq!(0, X.load(Relaxed));
 ```
 
 Here are some examples where expressions don't have extended temporary scopes:
 
-```rust,compile_fail
+```rust,compile_fail,E0716
+# fn temp() {}
+// Arguments to function calls are not extending expressions. The
+// temporary is dropped at the semicolon.
+let x = core::convert::identity(&temp()); // ERROR
+# x;
+```
+
+```rust,compile_fail,E0716
 # fn temp() {}
 # trait Use { fn use_temp(&self) -> &Self { self } }
 # impl Use for () {}
-// The temporary that stores the result of `temp()` only lives until the
-// end of the let statement in these cases.
+// Receivers of method calls are not extending expressions.
+let x = (&temp()).use_temp(); // ERROR
+# x;
+```
 
-let x = std::convert::identity(&temp()); // ERROR
-let x = (&temp()).use_temp();  // ERROR
+```rust,compile_fail,E0716
+# fn temp() {}
+// Scrutinees of match expressions are not extending expressions.
+let x = match &temp() { x => x }; // ERROR
+# x;
+```
+
+```rust,compile_fail,E0515
+# fn temp() {}
+// Final expressions of `async` blocks are not extending expressions.
+let x = async { &temp() }; // ERROR
+# x;
+```
+
+```rust,compile_fail,E0515
+# fn temp() {}
+// Final expressions of closures are not extending expressions.
+let x = || &temp(); // ERROR
+# x;
+```
+
+```rust,compile_fail,E0716
+# fn temp() {}
+// Operands of loop breaks are not extending expressions.
+let x = loop { break &temp() }; // ERROR
+# x;
+```
+
+```rust,compile_fail,E0716
+# fn temp() {}
+// Operands of breaks to labels are not extending expressions.
+let x = 'a: { break 'a &temp() }; // ERROR
 # x;
 ```
 
@@ -532,6 +644,8 @@ There is one additional case to be aware of: when a panic reaches a [non-unwindi
 [tuple variant]: type.enum.declaration
 
 [array expression]: expressions/array-expr.md#array-expressions
+[array repeat operands]: expr.array.repeat-operand
+[async block expression]: expr.block.async
 [block expression]: expressions/block-expr.md
 [borrow expression]: expressions/operator-expr.md#borrow-operators
 [cast expression]: expressions/operator-expr.md#type-cast-expressions
