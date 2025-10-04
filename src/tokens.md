@@ -469,7 +469,7 @@ c"\xC3\xA6";
 
 r[lex.token.str-c.edition2021]
 > [!EDITION-2021]
-> C string literals are accepted in the 2021 edition or later. In earlier additions the token `c""` is lexed as `c ""`.
+> C string literals are accepted in the 2021 edition or later. In earlier editions the token `c""` is lexed as `c ""`.
 
 r[lex.token.str-c-raw]
 #### Raw C string literals
@@ -501,7 +501,7 @@ literal) or `U+005C` (`\`) do not have any special meaning.
 
 r[lex.token.str-c-raw.edition2021]
 > [!EDITION-2021]
-> Raw C string literals are accepted in the 2021 edition or later. In earlier additions the token `cr""` is lexed as `cr ""`, and `cr#""#` is lexed as `cr #""#` (which is non-grammatical).
+> Raw C string literals are accepted in the 2021 edition or later. In earlier editions the token `cr""` is lexed as `cr ""`, and `cr#""#` is lexed as `cr #""#` (which is non-grammatical).
 
 #### Examples for C string and raw C string literals
 
@@ -628,8 +628,7 @@ TUPLE_INDEX -> DEC_LITERAL | BIN_LITERAL | OCT_LITERAL | HEX_LITERAL
 ```
 
 r[lex.token.literal.int.tuple-field.intro]
-A tuple index is used to refer to the fields of [tuples], [tuple structs], and
-[tuple variants].
+A tuple index is used to refer to the fields of [tuples], [tuple structs], and [tuple enum variants].
 
 r[lex.token.literal.int.tuple-field.eq]
 Tuple indices are compared with the literal token directly. Tuple indices
@@ -792,7 +791,7 @@ It is an error to use the RESERVED_RAW_LIFETIME token `'r#_` in order to avoid c
 
 r[lex.token.life.raw.edition2021]
 > [!EDITION-2021]
-> Raw lifetimes are accepted in the 2021 edition or later. In earlier additions the token `'r#lt` is lexed as `'r # lt`.
+> Raw lifetimes are accepted in the 2021 edition or later. In earlier editions the token `'r#lt` is lexed as `'r # lt`.
 
 r[lex.token.punct]
 ## Punctuation
@@ -1074,7 +1073,7 @@ r[lex.token.reserved-guards.edition2024]
 [trait bounds]: trait-bounds.md
 [tuple index]: expressions/tuple-expr.md#tuple-indexing-expressions
 [tuple structs]: items/structs.md
-[tuple variants]: items/enumerations.md
+[tuple enum variants]: items/enumerations.md
 [tuples]: types/tuple.md
 [unary minus operator]: expressions/operator-expr.md#negation-operators
 [use declarations]: items/use-declarations.md

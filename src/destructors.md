@@ -483,7 +483,7 @@ expression which is one of the following:
 * The operand(s) of an extending [array][array expression], [cast][cast
   expression], [braced struct][struct expression], or [tuple][tuple expression]
   expression.
-* The arguments to an extending [tuple struct] or [tuple variant] constructor expression.
+* The arguments to an extending [tuple struct] or [tuple enum variant] constructor expression.
 * The final expression of an extending [block expression] except for an [async block expression].
 * The final expression of an extending [`if`] expression's consequent, `else if`, or `else` block.
 * An arm expression of an extending [`match`] expression.
@@ -540,9 +540,7 @@ let x = pin!(temp()); // Super operand of super macro call expression.
 # x;
 let x = pin!({ &mut temp() }); // As above.
 # x;
-# // FIXME: Simplify after this PR lands:
-# // <https://github.com/rust-lang/rust/pull/145882>.
-let x = format_args!("{:?}{:?}", (), temp()); // As above.
+let x = format_args!("{:?}", temp()); // As above.
 # x;
 //
 // All of the temporaries above are still live here.
@@ -613,11 +611,10 @@ let x = 'a: { break 'a &temp() }; // ERROR
 pin!({ &temp() }); // ERROR
 ```
 
-<!-- FIXME: Simplify after https://github.com/rust-lang/rust/pull/145882 lands. -->
 ```rust,edition2024,compile_fail,E0716
 # fn temp() {}
 // As above.
-format_args!("{:?}{:?}", (), { &temp() }); // ERROR
+format_args!("{:?}", { &temp() }); // ERROR
 ```
 
 r[destructors.forget]
@@ -675,7 +672,7 @@ There is one additional case to be aware of: when a panic reaches a [non-unwindi
 [tuple pattern]: patterns.md#tuple-patterns
 [tuple struct pattern]: patterns.md#tuple-struct-patterns
 [tuple struct]: type.struct.tuple
-[tuple variant]: type.enum.declaration
+[tuple enum variant]: type.enum.declaration
 
 [array expression]: expressions/array-expr.md#array-expressions
 [array repeat operands]: expr.array.repeat-operand
