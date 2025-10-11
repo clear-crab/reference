@@ -3,7 +3,7 @@ r[destructors]
 
 r[destructors.intro]
 When an [initialized]&#32;[variable] or [temporary] goes out of
-[scope](#drop-scopes), its *destructor* is run, or it is *dropped*. [Assignment]
+[scope](#drop-scopes), its *destructor* is run or it is *dropped*. [Assignment]
 also runs the destructor of its left-hand operand, if it's initialized. If a
 variable has been partially initialized, only its initialized fields are
 dropped.
@@ -523,6 +523,11 @@ let x = &raw const *&temp(); // Operand of raw borrow.
 let x = &temp() as &dyn Send; // Operand of cast.
 # x;
 let x = (&*&temp(),); // Operand of tuple constructor.
+# x;
+struct W<T>(T);
+let x = W(&temp()); // Argument to tuple struct constructor.
+# x;
+let x = Some(&temp()); // Argument to tuple enum variant constructor.
 # x;
 let x = { [Some(&temp())] }; // Final expr of block.
 # x;

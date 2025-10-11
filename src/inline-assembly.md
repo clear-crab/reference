@@ -1355,7 +1355,7 @@ r[asm.rules.x86-df]
 
 r[asm.rules.x86-x87]
 - On x86, the x87 floating-point register stack must remain unchanged unless all of the `st([0-7])` registers have been marked as clobbered with `out("st(0)") _, out("st(1)") _, ...`.
-  - If all x87 registers are clobbered then the x87 register stack is guaranteed to be empty upon entering the assembly code. Assembly code must ensure that the x87 register stack is also empty when exiting the asssembly code.
+  - If all x87 registers are clobbered then the x87 register stack is guaranteed to be empty upon entering the assembly code. Assembly code must ensure that the x87 register stack is also empty when exiting the assembly code.
 
 ```rust
 # #[cfg(target_arch = "x86_64")]
@@ -1522,7 +1522,7 @@ extern "sysv64-unwind" fn may_panic() {
 > - [ImperialViolet - CFI directives in assembly files](https://www.imperialviolet.org/2017/01/18/cfi.html)
 
 r[asm.validity]
-### Correctness and Validity
+### Correctness and validity
 
 r[asm.validity.necessary-but-not-sufficient]
 In addition to all of the previous rules, the string argument to `asm!` must ultimately become---
@@ -1548,7 +1548,7 @@ Programmers should exercise appropriate care, as invoking this `unsafe` capabili
 assuming the responsibility of not violating rules of both the compiler or the architecture.
 
 r[asm.directives]
-### Directives Support
+### Directives support
 
 r[asm.directives.subset-supported]
 Inline assembly supports a subset of the directives supported by both GNU AS and LLVM's internal assembler, given as follows.
@@ -1630,10 +1630,10 @@ assert_eq!(s, "Hello World!");
 ```
 
 r[asm.target-specific-directives]
-#### Target Specific Directive Support
+#### Target specific directive support
 
 r[asm.target-specific-directives.dwarf-unwinding]
-##### Dwarf Unwinding
+##### Dwarf unwinding
 
 The following directives are supported on ELF targets that support DWARF unwind info:
 
@@ -1660,7 +1660,7 @@ The following directives are supported on ELF targets that support DWARF unwind 
 - `.cfi_window_save`
 
 r[asm.target-specific-directives.structured-exception-handling]
-##### Structured Exception Handling
+##### Structured exception handling
 
 On targets with structured exception Handling, the following additional directives are guaranteed to be supported:
 
