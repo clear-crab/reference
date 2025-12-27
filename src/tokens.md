@@ -14,8 +14,8 @@ Token ->
     | RAW_BYTE_STRING_LITERAL
     | C_STRING_LITERAL
     | RAW_C_STRING_LITERAL
-    | INTEGER_LITERAL
     | FLOAT_LITERAL
+    | INTEGER_LITERAL
     | LIFETIME_TOKEN
     | PUNCTUATION
     | IDENTIFIER_OR_KEYWORD
@@ -157,8 +157,10 @@ ASCII_ESCAPE ->
     | `\n` | `\r` | `\t` | `\\` | `\0`
 
 UNICODE_ESCAPE ->
-    `\u{` ( HEX_DIGIT `_`* ){1..6} `}`
+    `\u{` ( HEX_DIGIT `_`* ){1..6} _valid hex char value_ `}`[^valid-hex-char]
 ```
+
+[^valid-hex-char]: See [lex.token.literal.char-escape.unicode].
 
 r[lex.token.literal.char.intro]
 A _character literal_ is a single Unicode character enclosed within two `U+0027` (single-quote) characters, with the exception of `U+0027` itself, which must be _escaped_ by a preceding `U+005C` character (`\`).
@@ -196,7 +198,7 @@ r[lex.token.literal.char-escape.ascii]
 * A _7-bit code point escape_ starts with `U+0078` (`x`) and is followed by exactly two _hex digits_ with value up to `0x7F`. It denotes the ASCII character with value equal to the provided hex value. Higher values are not permitted because it is ambiguous whether they mean Unicode code points or byte values.
 
 r[lex.token.literal.char-escape.unicode]
-* A _24-bit code point escape_ starts with `U+0075` (`u`) and is followed by up to six _hex digits_ surrounded by braces `U+007B` (`{`) and `U+007D` (`}`). It denotes the Unicode code point equal to the provided hex value.
+* A _24-bit code point escape_ starts with `U+0075` (`u`) and is followed by up to six _hex digits_ surrounded by braces `U+007B` (`{`) and `U+007D` (`}`). It denotes the Unicode code point equal to the provided hex value. The value must be a valid Unicode scalar value.
 
 r[lex.token.literal.char-escape.whitespace]
 * A _whitespace escape_ is one of the characters `U+006E` (`n`), `U+0072` (`r`), or `U+0074` (`t`), denoting the Unicode values `U+000A` (LF), `U+000D` (CR) or `U+0009` (HT) respectively.
@@ -441,15 +443,15 @@ r[lex.token.literal.int]
 r[lex.token.literal.int.syntax]
 ```grammar,lexer
 INTEGER_LITERAL ->
-    ( DEC_LITERAL | BIN_LITERAL | OCT_LITERAL | HEX_LITERAL ) SUFFIX_NO_E?
+    ( BIN_LITERAL | OCT_LITERAL | HEX_LITERAL | DEC_LITERAL ) SUFFIX_NO_E?
 
 DEC_LITERAL -> DEC_DIGIT (DEC_DIGIT|`_`)*
 
-BIN_LITERAL -> `0b` (BIN_DIGIT|`_`)* BIN_DIGIT (BIN_DIGIT|`_`)*
+BIN_LITERAL -> `0b` `_`* BIN_DIGIT (BIN_DIGIT|`_`)*
 
-OCT_LITERAL -> `0o` (OCT_DIGIT|`_`)* OCT_DIGIT (OCT_DIGIT|`_`)*
+OCT_LITERAL -> `0o` `_`* OCT_DIGIT (OCT_DIGIT|`_`)*
 
-HEX_LITERAL -> `0x` (HEX_DIGIT|`_`)* HEX_DIGIT (HEX_DIGIT|`_`)*
+HEX_LITERAL -> `0x` `_`* HEX_DIGIT (HEX_DIGIT|`_`)*
 
 BIN_DIGIT -> [`0`-`1`]
 
@@ -556,12 +558,12 @@ r[lex.token.literal.float]
 r[lex.token.literal.float.syntax]
 ```grammar,lexer
 FLOAT_LITERAL ->
-      DEC_LITERAL `.` _not immediately followed by `.`, `_` or an XID_Start character_
+      DEC_LITERAL (`.` DEC_LITERAL)? FLOAT_EXPONENT SUFFIX?
     | DEC_LITERAL `.` DEC_LITERAL SUFFIX_NO_E?
-    | DEC_LITERAL (`.` DEC_LITERAL)? FLOAT_EXPONENT SUFFIX?
+    | DEC_LITERAL `.` _not immediately followed by `.`, `_` or an XID_Start character_
 
 FLOAT_EXPONENT ->
-    (`e`|`E`) (`+`|`-`)? (DEC_DIGIT|`_`)* DEC_DIGIT (DEC_DIGIT|`_`)*
+    (`e`|`E`) (`+`|`-`)? `_`* DEC_DIGIT (DEC_DIGIT|`_`)*
 ```
 
 r[lex.token.literal.float.form]
@@ -655,12 +657,12 @@ r[lex.token.life]
 r[lex.token.life.syntax]
 ```grammar,lexer
 LIFETIME_TOKEN ->
-      `'` IDENTIFIER_OR_KEYWORD _not immediately followed by `'`_
-    | RAW_LIFETIME
+      RAW_LIFETIME
+    | `'` IDENTIFIER_OR_KEYWORD _not immediately followed by `'`_
 
 LIFETIME_OR_LABEL ->
-      `'` NON_KEYWORD_IDENTIFIER _not immediately followed by `'`_
-    | RAW_LIFETIME
+      RAW_LIFETIME
+    | `'` NON_KEYWORD_IDENTIFIER _not immediately followed by `'`_
 
 RAW_LIFETIME ->
     `'r#` IDENTIFIER_OR_KEYWORD _not immediately followed by `'`_
@@ -693,58 +695,58 @@ Punctuation tokens are used as operators, separators, and other parts of the gra
 r[lex.token.punct.syntax]
 ```grammar,lexer
 PUNCTUATION ->
-      `=`
-    | `<`
-    | `<=`
-    | `==`
-    | `!=`
-    | `>=`
-    | `>`
-    | `&&`
-    | `||`
-    | `!`
-    | `~`
-    | `+`
-    | `-`
-    | `*`
-    | `/`
-    | `%`
-    | `^`
-    | `&`
-    | `|`
-    | `<<`
-    | `>>`
-    | `+=`
-    | `-=`
-    | `*=`
-    | `/=`
-    | `%=`
-    | `^=`
-    | `&=`
-    | `|=`
+      `...`
+    | `..=`
     | `<<=`
     | `>>=`
-    | `@`
-    | `.`
-    | `..`
-    | `...`
-    | `..=`
-    | `,`
-    | `;`
-    | `:`
-    | `::`
+    | `!=`
+    | `%=`
+    | `&&`
+    | `&=`
+    | `*=`
+    | `+=`
+    | `-=`
     | `->`
+    | `..`
+    | `/=`
+    | `::`
     | `<-`
+    | `<<`
+    | `<=`
+    | `==`
     | `=>`
+    | `>=`
+    | `>>`
+    | `>`
+    | `^=`
+    | `|=`
+    | `||`
+    | `!`
     | `#`
     | `$`
-    | `?`
-    | `{`
-    | `}`
-    | `[`
-    | `]`
+    | `%`
+    | `&`
     | `(`
     | `)`
+    | `*`
+    | `+`
+    | `,`
+    | `-`
+    | `.`
+    | `/`
+    | `:`
+    | `;`
+    | `<`
+    | `=`
+    | `?`
+    | `@`
+    | `[`
+    | `]`
+    | `^`
+    | `{`
+    | `|`
+    | `}`
+    | `~`
 ```
 
 > [!NOTE]
