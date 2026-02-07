@@ -59,10 +59,10 @@ r[const-eval.const-expr.block]
     * [expression statements]
 
 r[const-eval.const-expr.field]
-* [Field] expressions.
+* [Field expressions].
 
 r[const-eval.const-expr.index]
-* Index expressions, [array indexing] or [slice] with a `usize`.
+* [Array and slice indexing expressions][array indexing], where the index is a `usize`.
 
 r[const-eval.const-expr.range]
 * [Range expressions].
@@ -292,7 +292,6 @@ The types of a const function's parameters and return type are restricted to tho
 [arithmetic]:           expressions/operator-expr.md#arithmetic-and-logical-binary-operators
 [array expressions]:    expressions/array-expr.md
 [array indexing]:       expressions/array-expr.md#array-and-slice-indexing-expressions
-[array indexing]:       expressions/array-expr.md#array-and-slice-indexing-expressions
 [array type length expressions]: types/array.md
 [assignment expressions]: expressions/operator-expr.md#assignment-expressions
 [async]:                items/functions.md#async-functions
@@ -316,7 +315,7 @@ The types of a const function's parameters and return type are restricted to tho
 [expression statements]: statements.md#expression-statements
 [expressions]:          expressions.md
 [`extern` statics]:     items/external-blocks.md#statics
-[field]:                expressions/field-expr.md
+[field expressions]:    expressions/field-expr.md
 [functions]:            items/functions.md
 [grouped]:              expressions/grouped-expr.md
 [interior mutability]:  interior-mutability.md
@@ -335,7 +334,6 @@ The types of a const function's parameters and return type are restricted to tho
 [promoted expression]:  destructors.md#constant-promotion
 [promoted]:             destructors.md#constant-promotion
 [range expressions]:    expressions/range-expr.md
-[slice]:                types/slice.md
 [statics]:              items/static-items.md
 [Struct expressions]:   expressions/struct-expr.md
 [temporary lifetime extension]: destructors.scope.lifetime-extension
