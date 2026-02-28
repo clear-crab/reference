@@ -188,6 +188,9 @@ r[paths.qualifiers]
 
 Paths can be denoted with various leading qualifiers to change the meaning of how it is resolved.
 
+> [!NOTE]
+> [`use` declarations] have additional behaviors and restrictions for `self`, `super`, `crate`, and `$crate`.
+
 r[paths.qualifiers.global-root]
 ### `::`
 
@@ -395,7 +398,7 @@ r[paths.canonical]
 ## Canonical paths
 
 r[paths.canonical.intro]
-Items defined in a module or implementation have a *canonical path* that corresponds to where within its crate it is defined.
+Each item defined in a module or implementation has a *canonical path* that corresponds to where within its crate it is defined.
 
 r[paths.canonical.alias]
 All other paths to these items are aliases.
@@ -486,5 +489,6 @@ mod without { // crate::without
 [traits]: items/traits.md
 [types]: types.md
 [union]: items/unions.md
+[`use` declarations]: items/use-declarations.md
 [value namespace]: names/namespaces.md
 [visibility]: visibility-and-privacy.md
