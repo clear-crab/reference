@@ -17,13 +17,9 @@ LINE_COMMENT ->
     | `//` _immediately followed by LF_
 
 BLOCK_COMMENT ->
-      `/**/`
-    | `/***/`
-    | `/*`
-        ^
-        ( ~[`*` `!`] | `**` | BLOCK_COMMENT_OR_DOC )
-        ( BLOCK_COMMENT_OR_DOC | ~`*/` )*
-      `*/`
+    `/*` ^
+      ( BLOCK_COMMENT_OR_DOC | (!`*/` CHAR) )*
+    `*/`
 
 INNER_LINE_DOC ->
     `//!` ^ LINE_DOC_COMMENT_CONTENT (LF | EOF)
@@ -46,9 +42,9 @@ OUTER_BLOCK_DOC ->
 BLOCK_CHAR -> (!(`*/` | CR) CHAR)
 
 BLOCK_COMMENT_OR_DOC ->
-      BLOCK_COMMENT
+      INNER_BLOCK_DOC
     | OUTER_BLOCK_DOC
-    | INNER_BLOCK_DOC
+    | BLOCK_COMMENT
 ```
 
 r[comments.normal]

@@ -50,7 +50,7 @@ The `example` attribute uses the [MetaNameValueStr] syntax. The value in the str
 
 ----
 
-The `example` attribute has the following forms:
+The `example` attribute has these forms:
 
 - [MetaWord]
   > [!EXAMPLE]
@@ -106,7 +106,7 @@ The `example` attribute may only be applied to the crate root.
 
 ----
 
-The `example` attribute is allowed anywhere attributes are allowed.
+The `example` attribute may be used anywhere attributes are allowed.
 
 ----
 
@@ -118,7 +118,7 @@ If there are unused attribute warnings, or if `rustc` is incorrectly accepting s
 ----
 
 r[PARENT.example.duplicates]
-Explain the behavior when the attribute is specified multiple times on an element. See [`AttributeDuplicates`](https://github.com/rust-lang/rust/blob/40d2563ea200f9327a8cb8b99a0fb82f75a7365c/compiler/rustc_feature/src/builtin_attrs.rs#L143) in the compiler. Examples:
+Explain the behavior when the attribute is used multiple times on an element. See [`AttributeDuplicates`](https://github.com/rust-lang/rust/blob/40d2563ea200f9327a8cb8b99a0fb82f75a7365c/compiler/rustc_feature/src/builtin_attrs.rs#L143) in the compiler. Examples:
 
 ----
 
@@ -155,7 +155,7 @@ Only the last use of `example` on an item is used to ...
 
 ----
 
-If the `example` attribute is used more than once on an item, then the combination of all the specified values is used as ...explain how they are merged.
+If the `example` attribute is used more than once on an item, then the combination of all listed values is used as ...explain how they are merged.
 
 ----
 

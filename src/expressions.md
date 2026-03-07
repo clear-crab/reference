@@ -165,8 +165,9 @@ The following contexts are *place expression* contexts:
 
 * The left operand of a [compound assignment] expression.
 * The operand of a unary [borrow], [raw borrow] or [dereference][deref] operator.
-* The operand of a field expression.
-* The indexed operand of an array indexing expression.
+* The operand of a [field expression].
+* The indexed operand of an [array indexing expression].
+* The tuple operand of a [tuple indexing expression].
 * The operand of any [implicit borrow].
 * The initializer of a [let statement].
 * The [scrutinee] of an [`if let`], [`match`][match], or [`while let`] expression.
@@ -377,6 +378,7 @@ They are never allowed before:
 [`while let`]:          expressions/loop-expr.md#while-let-patterns
 [array expressions]:    expressions/array-expr.md
 [array indexing]:       expressions/array-expr.md#array-and-slice-indexing-expressions
+[array indexing expression]: expr.array.index
 [assign]:               expressions/operator-expr.md#assignment-expressions
 [block expressions]:    expressions/block-expr.md
 [borrow]:               expressions/operator-expr.md#borrow-operators
@@ -390,6 +392,7 @@ They are never allowed before:
 [extending expression]: destructors.scope.lifetime-extension.exprs
 [extending expressions]: destructors.scope.lifetime-extension.exprs
 [field]:                expressions/field-expr.md
+[field expression]:     expr.field
 [functional update]:    expressions/struct-expr.md#functional-update-syntax
 [implicit borrow]:      #implicit-borrows
 [implicitly borrowed]:  expr.implicit-borrow
@@ -416,6 +419,7 @@ They are never allowed before:
 [temporary scopes]:     destructors.scope.temporary
 [Temporary values]:     #temporaries
 [tuple expressions]:    expressions/tuple-expr.md
+[tuple indexing expression]: expr.tuple-index
 [Tuple structs]:        items.struct.tuple
 [Tuples]:               expressions/tuple-expr.md
 [Underscores]:          expressions/underscore-expr.md

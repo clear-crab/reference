@@ -42,21 +42,32 @@ r[input.shebang]
 ## Shebang removal
 
 r[input.shebang.intro]
-If the remaining sequence begins with the characters `#!`, the characters up to and including the first `U+000A` (LF) are removed from the sequence.
+A *[shebang]* is an optional line that is typically used in Unix-like systems to specify an interpreter for executing the file.
 
-For example, the first line of the following file would be ignored:
+> [!EXAMPLE]
+> <!-- ignore: tests don't like shebang -->
+> ```rust,ignore
+> #!/usr/bin/env rustx
+>
+> fn main() {
+>     println!("Hello!");
+> }
+> ```
 
-<!-- ignore: tests don't like shebang -->
-```rust,ignore
-#!/usr/bin/env rustx
-
-fn main() {
-    println!("Hello!");
-}
+r[input.shebang.syntax]
+```grammar,lexer
+@root SHEBANG ->
+    `#!` !((WHITESPACE | LINE_COMMENT | BLOCK_COMMENT)* `[`)
+    ~LF* (LF | EOF)
 ```
 
-r[input.shebang.inner-attribute]
-As an exception, if the `#!` characters are followed (ignoring intervening [comments] or [whitespace]) by a `[` token, nothing is removed. This prevents an [inner attribute] at the start of a source file being removed.
+The shebang starts with the characters `#!` and extends through the first `U+000A` (LF) or through EOF if no LF is present. If the `#!` characters are followed by `[` (ignoring any intervening [comments] or [whitespace]), the line is not considered a shebang (to avoid ambiguity with an [inner attribute]).
+
+r[input.shebang.position]
+The shebang may appear immediately at the start of the file or after the optional [byte order mark].
+
+r[input.shebang.removal]
+The shebang is removed from the input sequence (and is therefore ignored).
 
 r[input.tokenization]
 ## Tokenization
@@ -76,5 +87,5 @@ The resulting sequence of characters is then converted into tokens as described 
 [BYTE ORDER MARK]: https://en.wikipedia.org/wiki/Byte_order_mark#UTF-8
 [comments]: comments.md
 [Crates and source files]: crates-and-source-files.md
-[_shebang_]: https://en.wikipedia.org/wiki/Shebang_(Unix)
+[shebang]: https://en.wikipedia.org/wiki/Shebang_(Unix)
 [whitespace]: whitespace.md

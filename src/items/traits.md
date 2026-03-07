@@ -31,7 +31,7 @@ r[items.traits.impls]
 Traits are implemented for specific types through separate [implementations].
 
 r[items.traits.associated-item-decls]
-Trait functions may omit the function body by replacing it with a semicolon. This indicates that the implementation must define the function. If the trait function defines a body, this definition acts as a default for any implementation which does not override it. Similarly, associated constants may omit the equals sign and expression to indicate implementations must define the constant value. Associated types must never define the type, the type may only be specified in an implementation.
+Trait functions may omit the function body by replacing it with a semicolon. This indicates that the implementation must define the function. If the trait function defines a body, this definition acts as a default for any implementation which does not override it. Similarly, associated constants may omit the equal sign and expression to indicate implementations must define the constant value. Associated types must never define the type, the type may only be specified in an implementation.
 
 ```rust
 // Examples of associated trait items with and without definitions.
