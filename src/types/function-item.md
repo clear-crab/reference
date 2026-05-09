@@ -2,7 +2,7 @@ r[type.fn-item]
 # Function item types
 
 r[type.fn-item.intro]
-When referred to, a function item, or the constructor of a tuple-like struct or enum variant, yields a zero-sized value of its _function item type_.
+When referred to, a function item, or the constructor of a tuple-like struct or enum variant, yields a [zero-sized] value of its _function item type_.
 
 r[type.fn-item.unique]
 That type explicitly identifies the function - its name, its type arguments, and its early-bound lifetime arguments (but not its late-bound lifetime arguments, which are only assigned when the function is called) - so the value does not need to contain an actual function pointer, and no indirection is needed when the function is called.
@@ -51,3 +51,4 @@ All function items implement [`Copy`], [`Clone`], [`Send`], and [`Sync`].
 [`Sync`]: ../special-types-and-traits.md#sync
 [coercion]: ../type-coercions.md
 [function pointers]: function-pointer.md
+[zero-sized]: glossary.zst

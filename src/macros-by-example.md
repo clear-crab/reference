@@ -116,7 +116,7 @@ Valid fragment specifiers are:
   * `meta`: an [Attr], the contents of an attribute
   * `pat`: a [Pattern] (see [macro.decl.meta.edition2021])
   * `pat_param`: a [PatternNoTopAlt]
-  * `path`: a [TypePath] style path
+  * `path`: a [TypePath]
   * `stmt`: a [Statement][grammar-Statement] without the trailing semicolon (except for item statements that require semicolons)
   * `tt`: a [TokenTree]&nbsp;(a single [token] or tokens in matching delimiters `()`, `[]`, or `{}`)
   * `ty`: a [Type][grammar-Type]

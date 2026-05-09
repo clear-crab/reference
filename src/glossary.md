@@ -211,9 +211,65 @@ r[glossary.uninhabited]
 
 A type is uninhabited if it has no constructors and therefore can never be instantiated. An uninhabited type is "empty" in the sense that there are no values of the type. The canonical example of an uninhabited type is the [never type] `!`, or an enum with no variants `enum Never { }`. Opposite of [Inhabited](#inhabited).
 
+r[glossary.zst]
+### Zero-sized type (ZST)
+
+A type is zero sized (a ZST) if its size is 0. Such types have at most one possible value. Examples include:
+
+- The [unit type] (see [layout.tuple.unit]).
+- [Function items] (see [type.fn-item.intro]).
+- The constructors of [tuple-like structs] (see [type.fn-item.intro]).
+- The constructors of [tuple-like enum variants] (see [type.fn-item.intro]).
+- `repr(C)` [structs] with no fields or where all fields are zero-sized (see [layout.repr.c.struct.size-field-offset]).
+- `repr(transparent)` [structs] with no fields or where all fields are zero-sized (see [layout.repr.transparent.layout-abi]).
+- [Arrays] of zero-sized types (see [layout.array]).
+- [Arrays] of length zero (see [layout.array]).
+- [Unions] of zero-sized types (see [items.union.common-storage]).
+
+```rust
+# use core::mem::{size_of, size_of_val};
+fn f() {}
+struct S(u8);
+enum E { V(u8) }
+#[repr(C)]
+struct C1 {}
+#[repr(C)]
+struct C2 {
+    f1: (),
+    f2: [(); 10],
+    f3: [u8; 0],
+    f4: C1,
+}
+#[repr(transparent)]
+struct T1 {}
+#[repr(transparent)]
+struct T2 {
+    f1: (),
+    f2: [(); 10],
+    f3: [u8; 0],
+}
+union U {
+    f1: (),
+    f2: [(); 10],
+    f3: [u8; 0],
+}
+assert_eq!(0, size_of::<()>());
+assert_eq!(0, size_of_val(&f));
+assert_eq!(0, size_of_val(&S));
+assert_eq!(0, size_of_val(&E::V));
+assert_eq!(0, size_of::<C1>());
+assert_eq!(0, size_of::<C2>());
+assert_eq!(0, size_of::<T1>());
+assert_eq!(0, size_of::<T2>());
+assert_eq!(0, size_of::<[(); 10]>());
+assert_eq!(0, size_of::<[u8; 0]>());
+assert_eq!(0, size_of::<U>());
+```
+
 [`extern` blocks]: items.extern
 [`extern fn`]: items.fn.extern
 [alignment]: type-layout.md#size-and-alignment
+[arrays]: type.array
 [associated item]: #associated-item
 [attributes]: attributes.md
 [*entity*]: names.md
@@ -222,6 +278,7 @@ A type is uninhabited if it has no constructors and therefore can never be insta
 [enums]: items/enumerations.md
 [fields]: expressions/field-expr.md
 [free item]: #free-item
+[function items]: type.fn-item
 [generic parameters]: items/generics.md
 [identifier]: identifiers.md
 [identifiers]: identifiers.md
@@ -245,6 +302,8 @@ A type is uninhabited if it has no constructors and therefore can never be insta
 [Paths]: paths.md
 [*scope*]: names/scopes.md
 [structs]: items/structs.md
+[tuple-like enum variants]: items.enum.constructor-namespace
+[tuple-like structs]: items.struct.tuple
 [trait object types]: types/trait-object.md
 [traits]: items/traits.md
 [turbofish test]: https://github.com/rust-lang/rust/blob/1.58.0/src/test/ui/parser/bastion-of-the-turbofish.rs
@@ -252,5 +311,6 @@ A type is uninhabited if it has no constructors and therefore can never be insta
 [types]: types.md
 [undefined-behavior]: behavior-considered-undefined.md
 [unions]: items/unions.md
+[unit type]: type.tuple.unit
 [variable bindings]: patterns.md
 [visibility rules]: visibility-and-privacy.md

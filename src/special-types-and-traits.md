@@ -59,7 +59,7 @@ mutability aren't placed in memory marked as read only.
 r[lang-types.phantom-data]
 ## `PhantomData<T>`
 
-[`std::marker::PhantomData<T>`] is a zero-sized, minimum alignment, type that
+[`std::marker::PhantomData<T>`] is a [zero-sized], minimum alignment, type that
 is considered to own a `T` for the purposes of [variance], [drop check], and
 [auto traits](#auto-traits).
 
@@ -249,4 +249,5 @@ These implicit `Sized` bounds may be relaxed by using the special `?Sized` bound
 [Tuples]: types/tuple.md
 [Type parameters]: types/parameters.md
 [variance]: subtyping.md#variance
+[zero-sized]: glossary.zst
 [Closures]: types/closure.md

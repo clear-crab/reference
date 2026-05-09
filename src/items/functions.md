@@ -53,7 +53,7 @@ r[items.fn.implicit-return]
 If the output type is not explicitly stated, it is the [unit type].
 
 r[items.fn.fn-item-type]
-When referred to, a _function_ yields a first-class *value* of the corresponding zero-sized [*function item type*], which when called evaluates to a direct call to the function.
+When referred to, a _function_ yields a first-class *value* of the corresponding [zero-sized] [*function item type*], which when called evaluates to a direct call to the function.
 
 For example, this is a simple function:
 
@@ -426,3 +426,4 @@ fn foo_oof(#[some_inert_attribute] arg: u8) {
 [value namespace]: ../names/namespaces.md
 [variadic function]: external-blocks.md#variadic-functions
 [`extern` block]: external-blocks.md
+[zero-sized]: glossary.zst

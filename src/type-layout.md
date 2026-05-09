@@ -18,7 +18,7 @@ r[layout.properties.align]
 The *alignment* of a value specifies what addresses are valid to store the value at. A value of alignment `n` must only be stored at an address that is a multiple of n. For example, a value with an alignment of 2 must be stored at an even address, while a value with an alignment of 1 can be stored at any address. Alignment is measured in bytes, and must be at least 1, and always a power of 2. The alignment of a value can be checked with the [`align_of_val`] function.
 
 r[layout.properties.size]
-The *size* of a value is the offset in bytes between successive elements in an array with that item type including alignment padding. The size of a value is always a multiple of its alignment. Note that some types are zero-sized; 0 is considered a multiple of any alignment (for example, on some platforms, the type `[u16; 0]` has size 0 and alignment 2). The size of a value can be checked with the [`size_of_val`] function.
+The *size* of a value is the offset in bytes between successive elements in an array with that item type including alignment padding. The size of a value is always a multiple of its alignment. Note that some types are [zero-sized]; 0 is considered a multiple of any alignment (for example, on some platforms, the type `[u16; 0]` has size 0 and alignment 2). The size of a value can be checked with the [`size_of_val`] function.
 
 r[layout.properties.sized]
 Types where all values have the same size and alignment, and both are known at compile time, implement the [`Sized`] trait and can be checked with the [`size_of`] and [`align_of`] functions. Types that are not [`Sized`] are known as [dynamically sized types]. Since all values of a `Sized` type share the same size and alignment, we refer to those shared values as the size of the type and the alignment of the type respectively.
@@ -94,7 +94,7 @@ r[layout.tuple.def]
 Tuples are laid out according to the [`Rust` representation][`Rust`].
 
 r[layout.tuple.unit]
-The exception to this is the unit tuple (`()`), which is guaranteed as a zero-sized type to have a size of 0 and an alignment of 1.
+The exception to this is the unit tuple (`()`), which is guaranteed as a [zero-sized type] to have a size of 0 and an alignment of 1.
 
 r[layout.trait-object]
 ## Trait object layout
@@ -178,7 +178,7 @@ The only data layout guarantees made by this representation are those required f
 r[layout.repr.rust.layout.struct]
 For [structs], it is further guaranteed that the fields do not overlap. That is, the fields can be ordered such that the offset plus the size of any field is less than or equal to the offset of the next field in the ordering. The ordering does not have to be the same as the order in which the fields are specified in the declaration of the type.
 
-Be aware that this guarantee does not imply that the fields have distinct addresses: zero-sized types may have the same address as other fields in the same struct.
+Be aware that this guarantee does not imply that the fields have distinct addresses: [zero-sized types] may have the same address as other fields in the same struct.
 
 r[layout.repr.rust.unspecified]
 There are no other guarantees of data layout made by this representation.
@@ -248,7 +248,7 @@ struct.size = current_offset + padding_needed_for(current_offset, struct.alignme
 > This pseudocode uses a naive algorithm that ignores overflow issues for the sake of clarity. To perform memory layout computations in actual code, use [`Layout`].
 
 > [!NOTE]
-> This algorithm can produce zero-sized structs. In C, an empty struct declaration like `struct Foo { }` is illegal. However, both gcc and clang support options to enable such structs, and assign them size zero. C++, in contrast, gives empty structs a size of 1, unless they are inherited from or they are fields that have the `[[no_unique_address]]` attribute, in which case they do not increase the overall size of the struct.
+> This algorithm can produce [zero-sized] structs. In C, an empty struct declaration like `struct Foo { }` is illegal. However, both gcc and clang support options to enable such structs, and assign them size zero. C++, in contrast, gives empty structs a size of 1, unless they are inherited from or they are fields that have the `[[no_unique_address]]` attribute, in which case they do not increase the overall size of the struct.
 
 r[layout.repr.c.union]
 #### `#[repr(C)]` Unions
@@ -561,6 +561,9 @@ Because this representation delegates type layout to another type, it cannot be 
 [enumerations]: items/enumerations.md
 [zero-variant enums]: items/enumerations.md#zero-variant-enums
 [undefined behavior]: behavior-considered-undefined.md
+[zero-sized]: glossary.zst
+[zero-sized type]: glossary.zst
+[zero-sized types]: glossary.zst
 [`PhantomData<T>`]: special-types-and-traits.md#phantomdatat
 [`Rust`]: #the-rust-representation
 [`C`]: #the-c-representation
