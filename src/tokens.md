@@ -179,7 +179,7 @@ STRING_LITERAL ->
       | STRING_CONTINUE
     )* `"` SUFFIX?
 
-STRING_CONTINUE -> `\` LF
+STRING_CONTINUE -> `\` LF [TAB LF CR SP]*
 ```
 
 r[lex.token.literal.str.intro]
@@ -345,8 +345,8 @@ r[lex.token.str-c.syntax]
 C_STRING_LITERAL ->
     `c"` ^ (
         ~[`"` `\` CR NUL]
-      | BYTE_ESCAPE _except `\0` or `\x00`_
-      | UNICODE_ESCAPE _except `\u{0}`, `\u{00}`, …, `\u{000000}`_
+      | !(`\0` | `\x00`) BYTE_ESCAPE
+      | !(`\u{` (`0` `_`*){1..=6} `}`) UNICODE_ESCAPE
       | STRING_CONTINUE
     )* `"` SUFFIX?
 ```

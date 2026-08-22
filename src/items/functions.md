@@ -262,6 +262,67 @@ With `panic=unwind`, when a `panic` is turned into an abort by a non-unwinding A
 
 For other considerations and limitations regarding unwinding across FFI boundaries, see the [relevant section in the Panic documentation][panic-ffi].
 
+r[items.fn.extern.custom]
+### Extern "custom"
+
+r[items.fn.extern.custom.intro]
+An `extern "custom"` function has an unknown, custom ABI. The only way to call such a function is via [inline assembly].
+
+> [!EXAMPLE]
+> ```rust
+> # #[cfg(target_arch = "x86_64")] {
+> # use core::arch::{asm, naked_asm};
+> #
+> /// Adds 1 to `rax`.
+> ///
+> /// This function uses a custom calling convention: the argument is
+> /// passed in `rax`, the result is returned in `rax`, the flags may
+> /// be clobbered, and all other registers are preserved.
+> #[unsafe(naked)]
+> unsafe extern "custom" fn increment() {
+>     naked_asm!(
+>         "add rax, 1",
+>         "ret",
+>     )
+> }
+>
+> let mut x: u64 = 41;
+> // SAFETY: The inline assembly respects the calling convention of
+> // `increment`: the argument is passed in `rax`, the result is read
+> // from `rax`, and no other registers are affected.
+> unsafe {
+>     asm!(
+>         "call {}",
+>         sym increment,
+>         inout("rax") x,
+>     );
+> }
+> assert_eq!(x, 42);
+> # }
+> ```
+
+r[items.fn.extern.custom.signature]
+An `extern "custom"` function must:
+
+- Be `unsafe`.
+- Not have any parameters.
+- Return the [unit type], with the return type either omitted or written explicitly as `()`.
+
+> [!NOTE]
+> The rule is syntactic. The return type may not be a type alias, even one defined to be the [unit type].
+>
+> ```rust,compile_fail
+> type Unit = ();
+>
+> #[unsafe(naked)]
+> unsafe extern "custom" fn f() -> Unit { // ERROR: Not explicit `()`.
+>     core::arch::naked_asm!("ret")
+> }
+> ```
+
+r[items.fn.extern.custom.naked]
+An `extern "custom"` function definition must be a [naked function].
+
 [forced-unwinding]: https://rust-lang.github.io/rfcs/2945-c-unwind-abi.html#forced-unwinding
 [panic handler]: ../panic.md#the-panic_handler-attribute
 [panic-ffi]: ../panic.md#unwinding-across-ffi-boundaries
@@ -496,7 +557,7 @@ unsafe extern "C" fn print(fmt: *const c_char, ap: ...) -> c_int {
 ```
 
 r[items.fn.c-variadic.abi]
-Only `extern "C"` and `extern "C-unwind"` function definitions can accept a variable argument list.
+Except on [naked functions], only `extern "C"` and `extern "C-unwind"` function definitions can accept a variable argument list.
 
 ```rust,compile_fail
 unsafe fn f(ap: ...) {} // ERROR: Not supported.
@@ -504,6 +565,55 @@ unsafe fn f(ap: ...) {} // ERROR: Not supported.
 
 ```rust,compile_fail
 unsafe extern "sysv64" fn f(ap: ...) {} // ERROR: Not supported.
+```
+
+A naked function can accept a variable argument list only if its ABI string is accepted under [items.extern.variadic.conventions].
+
+```rust
+# #[cfg(target_arch = "x86_64")] {
+/// Computes the dot product of the `n`-dimensional vector `v`, passed
+/// as `n` C-variadic `f64` arguments, with the vector `(c, ..., c)`.
+/// That is, it computes `c * (v1 + ... + vn)`.
+///
+/// # Safety
+///
+/// The caller must pass `n` in the range `1..=7`, followed by exactly
+/// `n` values of type `f64`.
+// SAFETY: The body respects the "sysv64" calling convention, upholds
+// the signature, and does not fall through.
+#[unsafe(naked)]
+unsafe extern "sysv64" fn dot(n: u64, c: f64, v: ...) -> f64 {
+    core::arch::naked_asm!(
+        // The "sysv64" calling convention passes `n` in `rdi`, `c` in
+        // `xmm0`, and the coordinates in `xmm1` through `xmm7`,
+        // in order. (The caller also passes the number of vector
+        // registers used in `al`.)
+        //
+        // The sum takes the last `n - 1` additions of the chain
+        // below. Each `addsd` encodes in exactly 4 bytes, so we enter
+        // the chain `4 * (n - 1)` bytes before the `mulsd`.
+        "neg rdi", // I.e., `rdi = -n`.
+        "lea rax, [rip + 2f]", // I.e., `rax` = address of label 2.
+        "lea rax, [rax + rdi*4 + 4]", // I.e., `rax -= 4 * (n - 1)`.
+        "jmp rax",
+        "addsd xmm6, xmm7", // Entered when `n` is 7.
+        "addsd xmm5, xmm6", // ... when `n` is at least 6.
+        "addsd xmm4, xmm5",
+        "addsd xmm3, xmm4",
+        "addsd xmm2, xmm3",
+        "addsd xmm1, xmm2", // ... when `n` is at least 2.
+        "2:",
+        "mulsd xmm0, xmm1", // The result is returned in `xmm0`.
+        "ret",
+    )
+}
+
+// SAFETY: `dot` is passed `n` variadic `f64` arguments in each call.
+let dot2 = unsafe { dot(2, 10.0, 3.0, 4.0) };
+assert_eq!(dot2, 70.0);
+let dot7 = unsafe { dot(7, 2.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0) };
+assert_eq!(dot7, 56.0);
+# }
 ```
 
 r[items.fn.c-variadic.safety]
@@ -646,6 +756,7 @@ fn foo_oof(#[some_inert_attribute] arg: u8) {
 [testing attributes]: ../attributes/testing.md
 [`cold`]: ../attributes/codegen.md#the-cold-attribute
 [`inline`]: ../attributes/codegen.md#the-inline-attribute
+[naked function]: ../attributes/codegen.md#the-naked-attribute
 [`deprecated`]: ../attributes/diagnostics.md#the-deprecated-attribute
 [`doc`]: ../../rustdoc/the-doc-attribute.html
 [`must_use`]: ../attributes/diagnostics.md#the-must_use-attribute
@@ -664,3 +775,5 @@ fn foo_oof(#[some_inert_attribute] arg: u8) {
 [`VaList<'_>`]: lang-types.va-list
 [`VaList`]: lang-types.va-list
 [zero-sized]: glossary.zst
+[inline assembly]: ../inline-assembly.md
+[naked functions]: attributes.codegen.naked

@@ -110,6 +110,17 @@ The `cold` attribute may only be applied to functions with [bodies] --- [closure
 
 <!-- TODO: rustc currently seems to allow cold on a trait function without a body, but it appears to be ignored. I think that may be a bug, and it should at least warn if not reject (like inline does). -->
 
+r[attributes.codegen.cold.extern-custom]
+The `cold` attribute may not be applied to an [`extern "custom"` function].
+
+```rust,compile_fail
+#[cold] // ERROR: Not allowed.
+#[unsafe(naked)]
+unsafe extern "custom" fn f() {
+    core::arch::naked_asm!("ret")
+}
+```
+
 r[attributes.codegen.cold.duplicates]
 Only the first use of `cold` on a function has effect.
 
@@ -143,6 +154,9 @@ The *`naked` [attribute]* prevents the compiler from emitting a function prologu
 > }
 > # }
 > ```
+
+> [!NOTE]
+> The assembly code of a naked function often does not follow the calling convention of any ABI known to the compiler. Such a function should be declared as an [`extern "custom"` function][items.fn.extern.custom].
 
 r[attributes.codegen.naked.syntax]
 The `naked` attribute uses the [MetaWord] syntax.
@@ -308,9 +322,6 @@ r[attributes.codegen.target_feature.availability]
 ### Available features
 
 The following is a list of the available feature names.
-
-r[attributes.codegen.target_feature.cfg-only]
-Target feature names marked as "(cfg only)" in this list may only be used with the [`target_feature`][cfg.target_feature] conditional compilation option, not with the `target_feature` attribute.
 
 r[attributes.codegen.target_feature.x86]
 #### `x86` or `x86_64`
@@ -556,9 +567,6 @@ Feature     | Implicitly Enables  | Description
 `a`         | `zaamo`, `zalrsc`   | [A][rv-a] --- Atomic instructions
 `b`         | `zba`, `zbc`, `zbs` | [B][rv-b] --- Bit Manipulation instructions
 `c`         | `zca`               | [C][rv-c] --- Compressed instructions
-`d`         | `f`                 | [D][rv-d] --- [(cfg only)] Double-Precision Floating-Point
-`e`         |                     | [E][rv-e] --- [(cfg only)] Embedded Instruction Set with 16 GPRs
-`f`         | `zicsr`             | [F][rv-f] --- [(cfg only)] Single-Precision Floating-Point
 `m`         |                     | [M][rv-m] --- Integer Multiplication and Division instructions
 `za64rs`    | `za128rs`           | [Za64rs][rv-za64rs] --- Platform Behavior: Naturally aligned Reservation sets with ≦ 64 Bytes
 `za128rs`   |                     | [Za128rs][rv-za128rs] --- Platform Behavior: Naturally aligned Reservation sets with ≦ 128 Bytes
@@ -611,9 +619,6 @@ Feature     | Implicitly Enables  | Description
 [rv-a]: https://github.com/riscv/riscv-isa-manual/blob/20250508/src/a-st-ext.adoc
 [rv-b]: https://github.com/riscv/riscv-isa-manual/blob/20250508/src/b-st-ext.adoc
 [rv-c]: https://github.com/riscv/riscv-isa-manual/blob/20250508/src/c-st-ext.adoc
-[rv-d]: https://github.com/riscv/riscv-isa-manual/blob/20250508/src/d-st-ext.adoc
-[rv-e]: https://github.com/riscv/riscv-isa-manual/blob/20250508/src/rv32e.adoc
-[rv-f]: https://github.com/riscv/riscv-isa-manual/blob/20250508/src/f-st-ext.adoc
 [rv-m]: https://github.com/riscv/riscv-isa-manual/blob/20250508/src/m-st-ext.adoc
 [rv-za64rs]: https://github.com/riscv/riscv-profiles/blob/rva23-rvb23-ratified/src/rva23-profile.adoc
 [rv-za128rs]: https://github.com/riscv/riscv-profiles/blob/v1.0/profiles.adoc
@@ -896,10 +901,10 @@ If the address of the function is taken as a function pointer, the low bit of th
 - For `arm::a32` ("ARM"), it will be 0.
 - For `arm::t32` ("Thumb"), it will be 1.
 
-[(cfg only)]: attributes.codegen.target_feature.cfg-only
 [`-C target-cpu`]: ../../rustc/codegen-options/index.html#target-cpu
 [`-C target-feature`]: ../../rustc/codegen-options/index.html#target-feature
 [`export_name`]: abi.export_name
+[`extern "custom"` function]: items.fn.extern.custom
 [`inline` attribute]: attributes.codegen.inline
 [`is_aarch64_feature_detected`]: ../../std/arch/macro.is_aarch64_feature_detected.html
 [`is_x86_feature_detected`]: ../../std/arch/macro.is_x86_feature_detected.html
