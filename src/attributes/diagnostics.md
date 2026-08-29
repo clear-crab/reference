@@ -321,7 +321,7 @@ The `deprecated` attribute has several forms:
     message. This is typically used to provide an explanation about the
     deprecation and preferred alternatives.
 
-r[attributes.diagnostic.deprecated.allowed-positions]
+r[attributes.diagnostics.deprecated.allowed-positions]
 The `deprecated` attribute may be applied to any [item], [trait item], [enum
 variant], [struct field], [external block item], or [macro definition]. It
 cannot be applied to [trait implementation items][trait-impl]. When applied to an item
@@ -401,11 +401,10 @@ As an exception to [attributes.diagnostics.must_use.type], the lint does not fir
 ```rust
 #![deny(unused_must_use)]
 # use core::ops::ControlFlow;
-enum Empty {}
-fn f1() -> Result<(), Empty> { Ok(()) }
-f1(); // OK: `Empty` is uninhabited.
-fn f2() -> ControlFlow<Empty, ()> { ControlFlow::Continue(()) }
-f2(); // OK: `Empty` is uninhabited.
+fn f1() -> Result<(), !> { Ok(()) }
+f1(); // OK: `!` is uninhabited.
+fn f2() -> ControlFlow<!, ()> { ControlFlow::Continue(()) }
+f2(); // OK: `!` is uninhabited.
 ```
 
 r[attributes.diagnostics.must_use.fn]
