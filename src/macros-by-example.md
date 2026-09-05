@@ -245,6 +245,7 @@ mod inner {
 m!(1);
 ```
 
+r[macro.decl.scope.textual.function-local]
 Macros can be declared and used locally inside functions as well, and work similarly:
 
 ```rust
@@ -259,7 +260,7 @@ fn foo() {
 // m!(); // Error: m is not in scope.
 ```
 
-r[macro.decl.scope.textual.shadow.path-based]
+r[macro.decl.scope.textual.shadow-path-based]
 Textual scope name bindings for macros shadow path-based scope bindings to macros.
 
 ```rust
